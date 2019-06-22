@@ -349,16 +349,14 @@ function update() {
   $(".line-scroll-wrapper").width($(".line-wrapper").width() + $(".line-btn-cancel").width() + $(".line-btn-delete").width());
   $(".line-normal-wrapper").width($(".line-wrapper").width());
   var lines = $(".line-normal-wrapper");
-  var len = lines.length;
   var lastX, lastXForMobile;
   
   var pressedObj; 
-  var lastLeftObj; 
+  var lastObj; 
   
   var start;
-  
-  for (var i = 0; i < len; ++i) {
-    lines[i].addEventListener('touchstart', function (e) {
+  touchHandler = {
+    start: function(e) {
       lastXForMobile = e.changedTouches[0].pageX;
       pressedObj = this;  
       
@@ -367,9 +365,8 @@ function update() {
         x: touches.pageX, 
         y: touches.pageY 
       };
-    });
-    lines[i].addEventListener('touchmove', function (e) {
-      
+    },
+    move: function() {
       var touches = event.touches[0];
       delta = {
         x: touches.pageX - start.x,
@@ -379,63 +376,70 @@ function update() {
       if (Math.abs(delta.x) > Math.abs(delta.y)) {
         event.preventDefault();
       }
-    });
-    lines[i].addEventListener('touchend', function (e) {
-      if (lastLeftObj && pressedObj != lastLeftObj) { 
-        $(lastLeftObj).animate({
+      
+    },
+    end: function(e) {
+      if (lastObj && pressedObj != lastObj) { 
+        $(lastObj).animate({
           marginLeft: "0"
         }, 500); 
-        lastLeftObj = null; 
+        lastObj = null; 
       }
       var diffX = e.changedTouches[0].pageX - lastXForMobile;
-      if (diffX < -150) {
+      if (diffX < -100) {
         $(pressedObj).animate({
-          marginLeft: "-132px"
+          marginLeft: "-140px"
         }, 500);
-        lastLeftObj && lastLeftObj != pressedObj &&
-          $(lastLeftObj).animate({
+        lastObj && lastObj != pressedObj &&
+          $(lastObj).animate({
             marginLeft: "0"
           }, 500); 
-        lastLeftObj = pressedObj; 
-      } else if (diffX > 150) {
-        if (pressedObj == lastLeftObj) {
+        lastObj = pressedObj; 
+      } else if (diffX > 100) {
+        if (pressedObj == lastObj) {
           $(pressedObj).animate({
             marginLeft: "0"
           }, 500); 
-          lastLeftObj = null; 
+          lastObj = null; 
         }
       }
-    });
+    },
+    
+  };
+  for (var i = 0; i < lines.length; ++i) {
+    lines[i].addEventListener("touchstart", touchHandler.start);
+    lines[i].addEventListener("touchmove", touchHandler.move);
+    lines[i].addEventListener("touchend", touchHandler.end);
   }
  
-  for (var i = 0; i < len; ++i) {
+  for (var i = 0; i < lines.length; ++i) {
     $(lines[i]).bind('mousedown', function (e) {
       lastX = e.clientX;
       pressedObj = this; 
     });
     $(lines[i]).bind('mouseup', function (e) {
-      if (lastLeftObj && pressedObj != lastLeftObj) { 
-        $(lastLeftObj).animate({
+      if (lastObj && pressedObj != lastObj) { 
+        $(lastObj).animate({
           marginLeft: "0"
         }, 500); 
-        lastLeftObj = null; 
+        lastObj = null; 
       }
       var diffX = e.clientX - lastX;
-      if (diffX < -150) {
+      if (diffX < -100) {
         $(pressedObj).animate({
-          marginLeft: "-132px"
+          marginLeft: "-140px"
         }, 500); 
-        lastLeftObj && lastLeftObj != pressedObj &&
-          $(lastLeftObj).animate({
+        lastObj && lastObj != pressedObj &&
+          $(lastObj).animate({
             marginLeft: "0"
           }, 500); 
-        lastLeftObj = pressedObj; 
-      } else if (diffX > 150) {
-        if (pressedObj == lastLeftObj) {
+        lastObj = pressedObj; 
+      } else if (diffX > 100) {
+        if (pressedObj == lastObj) {
           $(pressedObj).animate({
             marginLeft: "0"
           }, 500); 
-          lastLeftObj = null; 
+          lastObj = null; 
         }
       }
     });
