@@ -1,5 +1,42 @@
 $(document).ready(function () {
   menuControl("font-li", "font-ul");
+  menuControl("color-li", "color-ul");
+  $('#font-ul li').click(function(){
+    if($(this).attr("id") == "bigSize"){
+      $('.item-msg').css("font-size",'28px');
+      $('#new-todo').css("font-size",'24px');
+    }
+    else if($(this).attr("id") == "smallSize"){
+      $('.item-msg').css('font-size','20px');
+      $('#new-todo').css("font-size",'16px')
+    }
+    else{
+      $('.item-msg').css('font-size','24px');
+      $('#new-todo').css("font-size",'20px')
+    }
+
+});
+$('#color-ul li').click(function(){
+  if($(this).attr("id") == "blue"){
+    $('#todo-ul li').css("background-color","rgba(154, 211, 240, 0.644)");
+    $('.header h1').css("color","rgba(120, 186, 216, 0.644)");
+    $('.importantitem').css("background-color","rgba(120, 186, 216, 0.644)");
+    $('.completed').css("background-color","#fff");
+  }
+  else if($(this).attr("id") == "green"){
+    $('#todo-ul li').css("background-color","rgba(144, 235, 152, 0.644)");
+    $('.header h1').css("color","rgba(120, 216, 128, 0.644)");
+    $('.completed').css("background-color","#fff");
+    $('.importantitem').css("background-color","rgba(120, 216, 128, 0.644)");
+  }
+  else{
+    $('#todo-ul li').css("background-color","rgba(253, 142, 142, 0.644)");
+    $('.header h1').css("color","rgba(226, 110, 110, 0.644)");
+    $('.completed').css("background-color","#fff");
+    $('.importantitem').css("background-color","rgba(226, 110, 110, 0.644)");
+  }
+
+});
   fetch();
   init();
 });
@@ -37,21 +74,15 @@ function init() {
     if (e.which == ENTER_KEY && data.input !== '') {
       data.items.push({
         msg: data.input,
-        completed: false
+        completed: false,
+        important:false
       });
       data.input = '';
       update();
     }
   });
 
-  $('.header').on('click', '#remove', function () {
-    for (var i = 0; i < data.items.length; i++) {
-      if (data.items[i].completed) {
-        data.items.splice(i, 1);
-      }
-    }
-    update();
-  });
+
 
   $('.header').on('change', '#complete-all', function () {
     for (var i = 0; i < data.items.length; i++) {
@@ -79,7 +110,27 @@ function update() {
 
   $('#new-todo').val(data.input);
 
-  $('#complete-all').prop("checked",data.items.length == completedCount);
+  $('.header').on('click', '#remove', function () {
+    if(data.filter == 'All'){
+      data.items=[];
+    }
+    else if(data.filter == 'Completed'){
+      for (var i = 0; i < data.items.length; i++) {
+      if (data.items[i].completed) {
+        data.items.splice(i, 1);
+      }
+    }
+    }
+    else if(data.filter == 'Active'){
+      for (var i = 0; i < data.items.length; i++) {
+        if (!data.items[i].completed) {
+          data.items.splice(i, 1);
+        }
+      }
+    }
+    
+    update();
+  });
 
   $('.filter-ul li a').each(function(){
     if (data.filter == this.innerHTML) $(this).addClass('selected');
@@ -105,7 +156,7 @@ function update() {
           '  <input class="complete" type="checkbox">',
           '  <div class="item-msg">' + itemData.msg + '</div>',
           '  </div>',
-          '  <input class="important" type="checkbox">',
+          
           '</div>',
           '<div class="line-btn-cancel"><button>cancel</button></div>',
           '<div class="line-btn-delete"><button>delete</button></div>',
@@ -135,14 +186,13 @@ function update() {
       });
 
     });
-
-    item.querySelector('.complete').checked=true;
-    
+    item.querySelector('.complete').checked=true;    
     $(item).on('change', '.complete', function () {      
       itemData.completed = false;     
       update();
     });
-    $(item).on('change', '.line-btn-delete', function () {      
+
+    $(item).on('click', '.line-btn-delete', function () {      
       data.items.splice(index, 1); 
       update();
     });
@@ -155,7 +205,7 @@ function update() {
   
  
     data.items.forEach(function(itemData, index) {
-    if (!itemData.completed) {
+    if (!itemData.completed && !itemData.important) {
       activeCount++;
       if (data.filter == 'All' || data.filter == 'Active') {
         var item = document.createElement('li');
@@ -197,12 +247,17 @@ function update() {
       });
 
     });
+    item.querySelector('.important').checked=itemData.important;    
+    $(item).on('change', '.important', function () {      
+      itemData.important = !itemData.important;     
+      update();
+    });
     item.querySelector('.complete').checked=false;
     $(item).on('change', '.complete', function () {      
       itemData.completed = true;     
       update();
     });
-    $(item).on('change', '.line-btn-delete', function () {      
+    $(item).on('click', '.line-btn-delete', function () {      
       data.items.splice(index, 1); 
       update();
     });
@@ -214,8 +269,82 @@ function update() {
     
   });
 
-  $('.count').html((activeCount || 'No') + (activeCount > 1 ? ' items' : ' item'));
+  data.items.forEach(function(itemData, index) {
+    if (!itemData.completed && itemData.important) {
+      activeCount++;
+      if (data.filter == 'All' || data.filter == 'Active') {
+        var item = document.createElement('li');
+        item.classList.add("line-wrapper");
+        item.classList.add("importantitem");
+        item.innerHTML = [
+          '<div class="line-scroll-wrapper">',
+          '<div class="line-normal-wrapper">',
+          '  <div class="line-normal-left-wrapper">',
+          '  <input class="complete" type="checkbox">',
+          '  <div class="item-msg">' + itemData.msg + '</div>',
+          '  </div>',
+          '  <input class="important" type="checkbox">',
+          '</div>',
+          '<div class="line-btn-cancel"><button>cancel</button></div>',
+          '<div class="line-btn-delete"><button>delete</button></div>',
+          '</div>'
+        ].join('');
 
+    $(item).on('click', '.item-msg', function (e) {
+      var itemMsg=e.target;
+      var edit = document.createElement('input');
+      edit.setAttribute('type', 'text');
+      edit.setAttribute('value', itemMsg.innerHTML);
+      edit.classList.add('edit');
+      $(e.target).replaceWith(edit);
+      edit.focus();
+      $(edit).on('blur', function () {
+        $(edit).replaceWith(itemMsg);
+      });
+      $(edit).on('keyup', function (ev) {
+        if (ev.which == ESC_KEY) {
+          $(edit).replaceWith(itemMsg);
+        } else if (ev.which == ENTER_KEY) {
+          itemMsg.innerHTML = $(edit).val();
+          $(edit).replaceWith(itemMsg);
+          itemData.msg = itemMsg.innerHTML;
+          update();
+        }
+      });
+
+    });
+    item.querySelector('.important').checked=itemData.important;    
+    $(item).on('change', '.important', function () {      
+      itemData.important = !itemData.important;     
+      update();
+    });
+    item.querySelector('.complete').checked=false;
+    $(item).on('change', '.complete', function () {      
+      itemData.completed = true;     
+      update();
+    });
+    $(item).on('click', '.line-btn-delete', function () {      
+      data.items.splice(index, 1); 
+      update();
+    });
+    var todoul = document.getElementById('todo-ul');
+    todoul.insertBefore(item, todoul.children[0]);
+    
+  }
+  }
+    
+  });
+
+  if (data.filter == 'All'){
+    $('.count').html(data.items.length+(data.items.length > 1 ? ' items' : ' item'));
+  }
+  else if(data.filter == 'Active'){
+    $('.count').html(activeCount + (activeCount > 1 ? ' items' : ' item'));
+  }
+  else if(data.filter == 'Completed'){
+    $('.count').html(completedCount + (completedCount > 1 ? ' items' : ' item'));
+  }
+  
   //参考开源代码https://github.com/Orange1991/demos-in-sfg.name/tree/master/code/4_left_sliding_button_in_listview
   $(".line-scroll-wrapper").width($(".line-wrapper").width() + $(".line-btn-cancel").width() + $(".line-btn-delete").width());
   $(".line-normal-wrapper").width($(".line-wrapper").width());

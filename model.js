@@ -1,7 +1,7 @@
 window.model = {
   data: {
     items: [
-      // {msg:'', completed: false}
+      // {msg:'', completed: false, important: false}
     ],
     input: '',
     filter: 'All'
