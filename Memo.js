@@ -422,15 +422,37 @@ if (data.filter == 'Canceled') {
 
   if (data.filter == 'All'){
     $('.count').html((activeCount+completedCount)+((activeCount+completedCount) > 1 ? ' items' : ' item'));
+    $('.pie').css("visibility","visible");
+    var angle="rotate("+completedCount/(activeCount+completedCount)*360+"deg)";
+  $('.pie .before').css("transform", angle);
+  if(completedCount/(activeCount+completedCount)>0.5){
+    $('.pie .pie_left').css("background-color", "rgb(167, 167, 167)");
+    $('.pie .before').css("transform", "rotate("+(completedCount/(activeCount+completedCount)*360-180)+"deg)");
+  }
+  else{
+    $('.pie .pie_left').css("background-color", "rgb(120, 186, 216)");
+  }
   }
   else if(data.filter == 'Active'){
     $('.count').html(activeCount + (activeCount > 1 ? ' items' : ' item'));
+    $('.pie').css("visibility","hidden");
   }
   else if(data.filter == 'Completed'){
     $('.count').html(completedCount + (completedCount > 1 ? ' items' : ' item'));
+    $('.pie').css("visibility","hidden");
   }
   else{
     $('.count').html(canceledCount + (canceledCount > 1 ? ' items' : ' item'));
+    $('.pie').css("visibility","hidden");
+  }
+  var angle="rotate("+completedCount/(activeCount+completedCount)*360+"deg)";
+  $('.pie .before').css("transform", angle);
+  if(completedCount/(activeCount+completedCount)>0.5){
+    $('.pie .pie_left').css("background-color", "rgb(167, 167, 167)");
+    $('.pie .before').css("transform", "rotate("+(completedCount/(activeCount+completedCount)*360-180)+"deg)");
+  }
+  else{
+    $('.pie .pie_left').css("background-color", "rgb(120, 186, 216)");
   }
   
   //参考开源代码https://github.com/Orange1991/demos-in-sfg.name/tree/master/code/4_left_sliding_button_in_listview
